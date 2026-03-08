@@ -1,93 +1,371 @@
-# 🚀 Multi-Agent Web Araştırma ve Scrape Sistemi
+# 🚀 Multi-Agent Web Research & Scoring System
 
-Bu proje, kullanıcının girdiği doğal dil sorgularını analiz eden, otonom olarak web üzerinde araştırma yapan, verileri kazıyan ve anlamlı bir sonuç raporu sunan çok katmanlı bir **AI Agent** sistemidir.
+Bu proje, kullanıcı tarafından verilen doğal dil sorgularını analiz eden, internet üzerinde otonom araştırma yapan, veri kazıyan ve elde edilen bilgileri analiz ederek anlamlı sonuçlar üreten **çok ajanlı (Multi-Agent) bir yapay zeka sistemidir.**
 
-Sistem, OpenAI **o4-mini** modelini (Azure üzerinden) kullanarak akıllı planlama ve veri filtreleme yapar. Playwright tabanlı kazıma motoru sayesinde modern web sitelerinden (React, Vue vb.) veri çekebilir ve anti-bot (Cloudflare, CAPTCHA) engellerini insan benzeri davranışlarla aşabilir.
+Sistem; web araştırması, veri kazıma (scraping), bilgi filtreleme ve puanlama işlemlerini farklı uzman **AI Agent'lar** üzerinden yürütür.
 
----
+Proje özellikle şu kullanım senaryoları için tasarlanmıştır:
 
-## ✨ Öne Çıkan Özellikler
-
-- **Otonom Planlama:** Sorguyu analiz edip "Spesifik", "Lokal", "Jenerik" veya "Kategorik" rotalardan birini seçer.
-- **Multi-Agent Mimarisi:** 7 farklı uzman ajanın işbirliğiyle (Planner, Discovery, Browsing, Scraper, Filtering, Presentation) çalışır.
-- **Anti-Bot & Stealth:** Playwright stealth modu ve akıllı parmak izi yönetimi ile engellenmeden tarama yapar.
-- **Platform Destekleri:** LinkedIn, Sahibinden, Google Maps, gibi zorlu platformlar için özel işleyiciler içerir.
-- **Modern UI:** React tabanlı arayüz ile arama sürecini canlı izleme ve sonuçları görselleştirme imkanı sunar.
+- AI destekli **araştırma otomasyonu**
+- **CV / aday değerlendirme sistemleri**
+- **şirket ve okul puanlama sistemleri**
+- **web veri toplama ve analiz pipeline'ları**
 
 ---
 
-## 🏗️ Sistem Mimarisi
+# 🧠 Sistem Özeti
 
-Sistem 3 ana veri katmanı üzerinden çalışır:
-1.  **`search.json` (Plan):** Ajanların rotasını ve hedef URL'leri tutar.
-2.  **`scrape.json` (Ham Veri):** Kazıyıcılardan gelen yapılandırılmamış verileri toplar.
-3.  **`result.json` (Sentez):** LLM tarafından filtrelenmiş ve son kullanıcıya hazır hale getirilmiş veridir.
+Sistem, kullanıcının sorgusunu analiz ederek uygun araştırma pipeline'ını seçer ve aşağıdaki çok katmanlı veri akışını çalıştırır.
+
+```
+User Query
+     │
+     ▼
+Source Planning Agent
+     │
+     ▼
+Source Discovery Agent
+     │
+     ▼
+Browsing Agent
+     │
+     ▼
+Scraping Agent
+     │
+     ▼
+Filtering Agent
+     │
+     ▼
+Result Generation
+     │
+     ▼
+Presentation Agent
+```
+
+Sistem tüm verileri üç ana veri katmanı üzerinden yönetir.
+
+| Dosya | Açıklama |
+|------|------|
+| `search.json` | Arama planı ve hedef kaynaklar |
+| `scrape.json` | Web sitelerinden çekilen ham veriler |
+| `result.json` | Filtrelenmiş ve son kullanıcıya hazır sonuçlar |
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+# ⚙️ Kullanılan Teknolojiler
 
-### 1. Gereksinimler
+| Teknoloji | Amaç |
+|------|------|
+| **OpenAI o4-mini (Azure)** | Planlama, doğrulama ve semantic analiz |
+| **Playwright** | Browser otomasyonu ve scraping |
+| **FastAPI** | Backend servisleri |
+| **React + Vite** | Kullanıcı arayüzü |
+| **Python** | Agent pipeline sistemi |
+| **JSON** | Veri depolama ve pipeline state yönetimi |
+
+---
+
+# 🧩 Multi-Agent Mimarisi
+
+Sistem farklı görevleri yerine getiren bağımsız agent'lardan oluşur.
+
+### 1️⃣ Source Planning Agent
+Kullanıcının sorgusunu analiz eder ve genişletilmiş arama query'leri oluşturur.
+
+Örnek:
+
+```
+Input Query:
+Galatasaray'ın 2025 yılında attığı goller
+```
+
+Planner şu queryleri oluşturabilir:
+
+```
+Galatasaray 2024/25 season goals
+Galatasaray 2025/26 season statistics
+Galatasaray match results 2025
+```
+
+---
+
+### 2️⃣ Source Discovery Agent
+
+Oluşturulan arama query'leri için güvenilir kaynakları bulur.
+
+Örnek:
+
+```
+mackolik.com
+beinsports.com
+uefa.com
+```
+
+---
+
+### 3️⃣ Browsing Agent
+
+Bulunan kaynak sitelerde gezinerek hedef veri sayfalarını keşfeder.
+
+---
+
+### 4️⃣ Scraping Agent
+
+Hedef sayfalardan verileri kazır ve `scrape.json` dosyasına kaydeder.
+
+---
+
+### 5️⃣ Filtering Agent
+
+Scrape edilen ham veriyi analiz eder ve sorgu ile ilişkili olan bilgileri filtreler.
+
+---
+
+### 6️⃣ Presentation Agent
+
+Sonuçları kullanıcı arayüzüne uygun formatta hazırlar.
+
+---
+
+# 🔎 Desteklenen Arama Pipeline'ları
+
+Sistem farklı araştırma türleri için ayrı pipeline'lar içerir.
+
+## 1️⃣ Spesifik Bilgi Arama
+
+Daraltılmış bilgi aramaları için kullanılır.
+
+Örnek:
+
+```
+Galatasaray'ın 2025 sezonu golleri
+```
+
+Pipeline:
+
+```
+spesifik_pipeline/
+```
+
+---
+
+## 2️⃣ Kategorik Bilgi Arama
+
+Belirli bir konu hakkında geniş kapsamlı bilgi toplar.
+
+Örnek:
+
+```
+Beyaz eşya sektöründeki teknolojik gelişmeler
+```
+
+Pipeline:
+
+```
+kategorik_pipeline/
+```
+
+---
+
+## 3️⃣ Lokal Firma Arama
+
+Google Maps veya yerel kaynaklardan firma verisi toplar.
+
+Örnek:
+
+```
+Şişli'deki dişçiler
+```
+
+Pipeline:
+
+```
+lokalfirma_pipeline/
+```
+
+---
+
+## 4️⃣ Jenerik Platform Arama
+
+LinkedIn, Sahibinden, Reddit gibi platformlardan veri toplar.
+
+Örnek:
+
+```
+İstanbul'daki fullstack developerlar
+```
+
+Pipeline:
+
+```
+jenerik_pipeline/
+```
+
+---
+
+# 🧪 Scoring Sistemleri
+
+Proje ayrıca aday değerlendirme sistemleri için özel scoring pipeline'ları içerir.
+
+---
+
+## 🎓 School Scoring Team
+
+Adayın mezun olduğu üniversiteyi **Times Higher Education ranking** verilerine göre analiz eder ve **20 üzerinden puan verir.**
+
+Pipeline:
+
+```
+URL Agent
+↓
+Browsing + Scraping Agent
+↓
+School Scoring Agent
+```
+
+---
+
+## 🏢 Company Scoring Team
+
+Adayın çalıştığı şirketleri LinkedIn üzerinden analiz eder ve iş ilanı kriterlerine göre puanlar.
+
+Pipeline:
+
+```
+URL Agent
+↓
+Validation Agent
+↓
+Scraping Agent
+↓
+Data Processing Agent
+↓
+Scoring Agent
+```
+
+Değerlendirme kriterleri:
+
+- Position relevancy
+- Industry relevancy
+- Experience duration
+- Company reputation
+- Company size
+
+Final skor:
+
+```
+Max Score = 20
+```
+
+---
+
+# 📂 Proje Yapısı
+
+```
+project-root
+│
+├── agents/                 # AI agent modülleri
+│
+├── pipelines/              # Araştırma pipeline'ları
+│   ├── spesifik_pipeline/
+│   ├── kategorik_pipeline/
+│   ├── lokalfirma_pipeline/
+│   └── jenerik_pipeline/
+│  
+│
+├── ui/                     # React arayüzü
+│
+├── utils/                  # yardımcı araçlar
+│
+└── README.md
+```
+
+---
+
+# ⚙️ Kurulum
+
+### 1️⃣ Gereksinimler
+
 - Python 3.10+
-- Node.js & npm (UI için)
-- Playwright tarayıcıları
+- Node.js
+- Playwright
+- Azure OpenAI erişimi
 
-### 2. Backend Kurulumu
+---
+
+### 2️⃣ Backend Kurulumu
+
 ```bash
-# Sanal ortam oluşturun
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Bağımlılıkları yükleyin
 pip install -r requirements.txt
-
-# Playwright tarayıcılarını kurun
 playwright install chromium
 ```
 
-### 3. Ortam Değişkenleri
-Bir `.env` dosyası oluşturun ve Azure OpenAI bilgilerinizi girin:
-```env
-OPENAI_API_KEY=your_api_key_here
-AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
+---
+
+### 3️⃣ Ortam Değişkenleri
+
+`.env` dosyası oluşturun.
+
+```
+OPENAI_API_KEY=
+AZURE_OPENAI_ENDPOINT=
 ```
 
-### 4. Kullanım
+---
 
-#### CLI Modu (Tüm Pipeline)
-```bash
+### 4️⃣ Frontend
+
+```
+cd ui
+npm install
+npm run dev
+```
+
+---
+
+# 🚀 Kullanım
+
+CLI üzerinden pipeline çalıştırmak:
+
+```
 python main.py
 ```
-*Sorgunuzu girin ve ajanların çalışmasını terminalden izleyin.*
 
-#### UI Modu (Web Arayüzü)
-1. **Backend API'yi Başlatın:**
-   ```bash
-   python -m agents.presentation_agent
-   ```
-2. **Frontend'i Başlatın:**
-   ```bash
-   cd ui
-   npm install
-   npm run dev
-   ```
-*Arayüze `http://localhost:5173` adresinden ulaşabilirsiniz.*
+Arayüz üzerinden kullanmak:
+
+```
+http://localhost:5173
+```
 
 ---
 
-## 📂 Proje Yapısı
+# 🎯 Projenin Amacı
 
-- `agents/`: Otonom ajanların mantık ve çekirdek kodları.
-- `ui/`: React + Vite tabanlı kullanıcı arayüzü.
-- `data/`: JSON tabanlı veri depolama katmanı.
-- `utils/`: Kimlik doğrulama, stealth ve yardımcı araçlar.
+Bu sistemin amacı:
+
+- web araştırmasını otomatikleştirmek
+- veri toplama ve analiz pipeline'larını AI ile yönetmek
+- aday değerlendirme sistemlerini otomatik hale getirmek
+- multi-agent mimarisini gerçek dünyada kullanmaktır.
 
 ---
 
-## 🛠️ Kullanılan Teknolojiler
-- **LLM:** OpenAI o4-mini
-- **Browser Automation:** Playwright (Python)
-- **Backend:** FastAPI, Uvicorn
-- **Frontend:** React, Vite
-- **Data:** JSON
+# 👨‍💻 Geliştirme
 
+Bu proje **modüler multi-agent mimarisi** kullanır.
+
+Yeni bir agent eklemek için:
+
+```
+agents/
+```
+
+Yeni bir pipeline eklemek için:
+
+```
+pipelines/
+```
+
+klasörleri genişletilebilir.
+
+---
