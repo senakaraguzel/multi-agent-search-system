@@ -79,6 +79,9 @@ Proje ana dizininden terminalde `googlemaps/` klasörüne geçin:
 ```bash
 # Sanal ortam varsa aktif edin
 python -m uvicorn api.server:app --reload --port 8000
+### 2. Frontend (React) Başlatılması
 cd frontend
 npm install   # İlk kurulum için
 npm run dev
+
+Tarayıcınızdan http://localhost:5173/ adresine giderek uygulamayı kullanabilirsiniz.
